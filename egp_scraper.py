@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import requests
 import pandas as pd
 import time
@@ -1052,9 +1053,13 @@ def main():
         format='%(asctime)s - %(levelname)s - %(message)s'
     )
     
-    # Initialize scraper
-    email = "sebunyaronaldoo@gmail.com"
-    password = "i6uGx!YyU8.G63_"
+    # Initialize scraper (use environment variables for credentials)
+    email = os.getenv("EGP_PORTAL_EMAIL")
+    password = os.getenv("EGP_PORTAL_PASSWORD")
+
+    if not email or not password:
+        logger.error("Missing credentials. Set EGP_PORTAL_EMAIL and EGP_PORTAL_PASSWORD.")
+        return
     
     scraper = EGPScraper(email, password)
     
