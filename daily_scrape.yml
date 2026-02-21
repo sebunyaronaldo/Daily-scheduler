@@ -1,0 +1,49 @@
+name: Daily EGP Scraper
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # 6am UTC = 9am EAT (Uganda time)
+  workflow_dispatch:       # allows manual trigger for testing
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scraper
+        env:
+          EGP_EMAIL: ${{ secrets.EGP_EMAIL }}
+          EGP_PASSWORD: ${{ secrets.EGP_PASSWORD }}
+        run: python your_script.py
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Upload CSV to GCS
+        uses: google-github-actions/upload-cloud-storage@v1
+        with:
+          path: .
+          destination: ${{ secrets.GCP_BUCKET_NAME }}
+          glob: 'egp_contracts_webapp_ready_*.csv'
+```
+
+> The `glob` pattern matches your timestamped filenames like `egp_contracts_webapp_ready_20260221_090000.csv` so every day a new file is uploaded without overwriting old ones.
+
+---
+
+## What You'll End Up With in GCS
+```
+your-bucket/
+  egp_contracts_webapp_ready_20260219.csv  ← 10 contracts
+  egp_contracts_webapp_ready_20260220.csv  ← 13 contracts
+  egp_contracts_webapp_ready_20260221.csv  ← 15 contracts
