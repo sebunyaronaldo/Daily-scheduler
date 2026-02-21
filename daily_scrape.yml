@@ -2,7 +2,7 @@ name: Daily EGP Scraper
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # 9am Uganda time (EAT)
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 jobs:
@@ -20,8 +20,8 @@ jobs:
 
       - name: Run scraper
         env:
-          EGP_EMAIL: ${{ secrets.EGP_EMAIL }}
-          EGP_PASSWORD: ${{ secrets.EGP_PASSWORD }}
+          EGP_PORTAL_EMAIL: ${{ secrets.EGP_PORTAL_EMAIL }}
+          EGP_PORTAL_PASSWORD: ${{ secrets.EGP_PORTAL_PASSWORD }}
         run: python egp_scraper.py
 
       - name: Upload CSV to GCS
