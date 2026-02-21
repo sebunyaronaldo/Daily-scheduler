@@ -1,0 +1,37 @@
+name: Daily EGP Scraper
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # 9am Uganda time (EAT)
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scraper
+        env:
+          EGP_EMAIL: ${{ secrets.EGP_EMAIL }}
+          EGP_PASSWORD: ${{ secrets.EGP_PASSWORD }}
+        run: python egp_scraper.py
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Upload CSV to GCS
+        uses: google-github-actions/upload-cloud-storage@v1
+        with:
+          path: .
+          destination: ${{ secrets.GCP_BUCKET_NAME }}
+          glob: 'egp_contracts_webapp_ready_*.csv'
