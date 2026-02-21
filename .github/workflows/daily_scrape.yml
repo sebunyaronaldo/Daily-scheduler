@@ -2,7 +2,7 @@ name: Daily EGP Scraper
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # 9am Uganda time (EAT)
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 jobs:
@@ -20,18 +20,14 @@ jobs:
 
       - name: Run scraper
         env:
-          EGP_EMAIL: ${{ secrets.EGP_EMAIL }}
-          EGP_PASSWORD: ${{ secrets.EGP_PASSWORD }}
+          EGP_PORTAL_EMAIL: ${{ secrets.EGP_PORTAL_EMAIL }}
+          EGP_PORTAL_PASSWORD: ${{ secrets.EGP_PORTAL_PASSWORD }}
         run: python egp_scraper.py
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-
       - name: Upload CSV to GCS
-        uses: google-github-actions/upload-cloud-storage@v1
-        with:
-          path: .
-          destination: ${{ secrets.GCP_BUCKET_NAME }}
-          glob: 'egp_contracts_webapp_ready_*.csv'
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GCP_CREDENTIALS }}
+          GCP_BUCKET_NAME: ${{ secrets.GCP_BUCKET_NAME }}
+        run: |
+          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > gcp-key.json
+          python upload_to_gcs.py
