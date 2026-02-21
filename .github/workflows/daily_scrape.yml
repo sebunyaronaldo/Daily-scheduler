@@ -30,4 +30,5 @@ jobs:
           GCP_BUCKET_NAME: ${{ secrets.GCP_BUCKET_NAME }}
         run: |
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > gcp-key.json
+          export GCP_BUCKET_NAME="${{ secrets.GCP_BUCKET_NAME }}"
           python upload_to_gcs.py
