@@ -4,11 +4,7 @@ from google.cloud import storage
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "gcp-key.json"
 
-bucket_name = os.environ.get("GCP_BUCKET_NAME")
-
-if not bucket_name:
-    print("GCP_BUCKET_NAME environment variable not set")
-    exit(1)
+bucket_name = "egp-contracts-data"
 
 client = storage.Client()
 bucket = client.bucket(bucket_name)
