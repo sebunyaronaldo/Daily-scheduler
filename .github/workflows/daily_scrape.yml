@@ -22,13 +22,14 @@ jobs:
         env:
           EGP_PORTAL_EMAIL: ${{ secrets.EGP_PORTAL_EMAIL }}
           EGP_PORTAL_PASSWORD: ${{ secrets.EGP_PORTAL_PASSWORD }}
-        run: python egp_scraper.py
+        run: |
+          python egp_scraper.py
+          echo "--- Files in directory after scraper ---"
+          ls -la *.csv 2>/dev/null || echo "No CSV files found"
 
       - name: Upload CSV to GCS
         env:
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GCP_CREDENTIALS }}
-          GCP_BUCKET_NAME: ${{ secrets.GCP_BUCKET_NAME }}
         run: |
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > gcp-key.json
-          export GCP_BUCKET_NAME="${{ secrets.GCP_BUCKET_NAME }}"
           python upload_to_gcs.py
